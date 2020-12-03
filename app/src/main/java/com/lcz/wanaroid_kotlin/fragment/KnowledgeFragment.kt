@@ -16,7 +16,7 @@ class KnowledgeFragment : BaseFragment<MainP>() {
     }
 
     override fun initView(): Int {
-        LogUtils.d("1")
+     
         return R.id.fly_Knowledge
     }
 
