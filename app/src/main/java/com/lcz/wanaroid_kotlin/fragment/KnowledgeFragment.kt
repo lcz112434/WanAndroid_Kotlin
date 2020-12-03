@@ -3,6 +3,7 @@ package com.lcz.wanaroid_kotlin.fragment
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.lcz.lczed_mvpbase.base.BaseFragment
+import com.lcz.lczed_mvpbase.utils.LogUtils
 import com.lcz.wanaroid_kotlin.Main.MainP
 import com.lcz.wanaroid_kotlin.R
 
@@ -16,7 +17,7 @@ class KnowledgeFragment : BaseFragment<MainP>() {
     }
 
     override fun initView(): Int {
-     
+        LogUtils.d("1")
         return R.id.fly_Knowledge
     }
 
