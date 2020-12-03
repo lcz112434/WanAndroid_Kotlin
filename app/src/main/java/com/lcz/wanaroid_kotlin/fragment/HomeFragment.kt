@@ -22,6 +22,7 @@ class HomeFragment : BaseFragment<HomeP>(), HomeV {
 
     override fun initView(): Int {
         homg_tv.text = "主页"
+        LogUtils.d("主页")
         return R.id.home_flv
     }
 
