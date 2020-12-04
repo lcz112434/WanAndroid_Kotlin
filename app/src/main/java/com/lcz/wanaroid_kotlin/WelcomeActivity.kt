@@ -13,7 +13,6 @@ class WelcomeActivity : BasePermissionActivity() {
         super.onCreate(savedInstanceState)
         SetTransparentBar()
         setContentView(R.layout.activity_welcome)
-        ActivityCollector.addActivity(this)
         var mTimer = object : CountDownTimer((2 * 1000).toLong(), 1000) {
 
             override fun onTick(millisUntilFinished: Long) {

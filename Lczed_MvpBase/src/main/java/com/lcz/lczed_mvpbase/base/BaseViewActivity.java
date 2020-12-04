@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Looper;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -18,13 +20,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.viewbinding.ViewBinding;
 
-import com.gyf.immersionbar.ImmersionBar;
+import com.lcz.lczed_mvpbase.databinding.ActivityBaseBinding;
 import com.lcz.lczed_mvpbase.utils.ActivityCollector;
 import com.lcz.lczed_mvpbase.utils.OnMultiClickListener;
 import com.lcz.lczed_mvpbase.utils.StatusUtils;
 import com.lcz.lczed_mvpbase.utils.SystemUtils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -40,16 +46,15 @@ import update.UpdateAppUtils;
  * E-mail: lcz3466601343@163.com
  * Description :BaseActivity 基类
  */
-public abstract class BaseActivity<P extends IBasePresenter> extends BasePermissionActivity implements IBaseView {
+public abstract class BaseViewActivity<P extends IBasePresenter, T extends ViewBinding> extends BasePermissionActivity implements IBaseView {
 
+    public ActivityBaseBinding baseBinding;
+    public T viewBinding;
     protected AppCompatActivity activityCompat;
     //获取Context
     protected Context context;
-    // 是否允许全屏
-    private boolean mAllowFullScreen = false;
     //对应的P层
     protected P presenter;
-
     //是否允许旋转屏幕
     private boolean isAllowScreenRoate = true;
     //定时器
@@ -63,6 +68,13 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //设置竖屏模式
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView()
+                    .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
         ActivityCollector.addActivity(this);
 
         //设置屏幕是否可旋转
@@ -70,10 +82,6 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-        //是否可以全屏
-        if (mAllowFullScreen) {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
 
         //透明状态栏
@@ -98,13 +106,29 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
 
     //初始化方法
     public void initCreae() {
-        setContentView(initLayout());
+        baseBinding = ActivityBaseBinding.inflate(getLayoutInflater());
+        setContentView(baseBinding.getRoot());
+
+        //通过反射调用inflate
+        try {
+            Class<T> viewBindClass = getViewBinding();
+            Method inflate = null;
+            inflate = viewBindClass.getMethod("inflate", LayoutInflater.class, ViewGroup.class, Boolean.TYPE);
+            viewBinding = (T) inflate.invoke(null, getLayoutInflater(), baseBinding.getRoot(), true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
 
         initView();
         presenter = createPresenter();
         presenter.attachView(this);
         initData();
         initListener();
+
     }
 
     //点击事件方法
@@ -113,8 +137,24 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
     /**
      * 页面布局绑定
      */
-    protected abstract int initLayout();
+    protected abstract Class<T> getViewBinding();
 
+    /**
+     * 初始化 Toolbar
+     *
+     * @param toolbar
+     * @param homeAsUpEnabled
+     * @param title
+     */
+    protected void initToolBar(Toolbar toolbar, boolean homeAsUpEnabled, String title) {
+        toolbar.setTitle(title);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(homeAsUpEnabled);
+    }
+
+    protected void initToolBar(Toolbar toolbar, boolean homeAsUpEnabled, int resTitle) {
+        initToolBar(toolbar, homeAsUpEnabled, getString(resTitle));
+    }
 
     //是否调用APK更新
     public void setAPKUpdate(String apkUrl, String updateTitle, String updateContent) {
@@ -152,6 +192,7 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
             mStatusUtils.showNetError(onClickListener);
         }
     }
+
 
     //数据加载失败，提示信息
     @Override
@@ -358,7 +399,7 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
      * @param clz
      */
     public void startActivity(Class<?> clz) {
-        startActivity(new Intent(BaseActivity.this, clz));
+        startActivity(new Intent(BaseViewActivity.this, clz));
     }
 
     /**
@@ -401,6 +442,7 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
         }
 
         ActivityCollector.removeActivity(this);
+
 //        ImmersionBar.with(this).destoy();  //不调用该方法，如果界面bar发生改变，在不关闭app的情况下，退出此界面再进入将记忆最后一次bar改变的状态
 
     }
@@ -412,30 +454,17 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
         Timer eExit = null;
         if (isExit == false) {
             isExit = true;
-            Toast.makeText(BaseActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseViewActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
             eExit = new Timer();
             eExit.schedule(new TimerTask() {
-
                 @Override
                 public void run() {
                     isExit = false;
                 }
             }, 2000);
         } else {
+
             finishAffinity();
         }
     }
-
-    //返回键返回事件
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (KeyEvent.KEYCODE_BACK == keyCode) {
-            if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
-                finish();
-                return true;
-            }
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
 }

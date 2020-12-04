@@ -1,9 +1,11 @@
 package com.lcz.wanaroid_kotlin.activity
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.MenuItem
+import android.view.View
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.lcz.lczed_mvpbase.base.BaseActivity
 import com.lcz.lczed_mvpbase.utils.LogUtils
@@ -11,6 +13,8 @@ import com.lcz.wanaroid_kotlin.Bean.MainBean
 import com.lcz.wanaroid_kotlin.Main.MainP
 import com.lcz.wanaroid_kotlin.Main.MainV
 import com.lcz.wanaroid_kotlin.R
+import com.lcz.wanaroid_kotlin.databinding.ActivityMainBinding
+import com.lcz.wanaroid_kotlin.databinding.ActivityTestBinding
 import com.lcz.wanaroid_kotlin.fragment.HomeFragment
 import com.lcz.wanaroid_kotlin.fragment.KnowledgeFragment
 import com.lcz.wanaroid_kotlin.fragment.MyFragment
@@ -68,13 +72,15 @@ class MainActivity : BaseActivity<MainP>(), MainV {
                 return true
             }
         })
+        toolbar_title.setOnClickListener(View.OnClickListener {
+            val intent = Intent(this,TestActivity::class.java)
+            startActivity(intent)
+        })
     }
 
     fun initTobar(title: String) {
        toolbar_title.setText(title)
     }
-
-
 
     override fun initLayout(): Int {
         return R.layout.activity_main
