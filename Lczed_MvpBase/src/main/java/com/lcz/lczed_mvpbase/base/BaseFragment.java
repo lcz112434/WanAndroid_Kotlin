@@ -71,10 +71,10 @@ public abstract class BaseFragment<P extends IBasePresenter> extends Fragment im
 
         if (getUserVisibleHint() && mRootView != null && !mIsMulti) {
             mIsMulti = true;
-            initData();
             int viewid = initView();
             ViewGroup byid = findByid(viewid);
             getViewGroup(byid);
+            initData();
         }
     }
 

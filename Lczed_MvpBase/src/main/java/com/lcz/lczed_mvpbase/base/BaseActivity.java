@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.gyf.immersionbar.ImmersionBar;
+import com.lcz.lczed_mvpbase.R;
 import com.lcz.lczed_mvpbase.utils.ActivityCollector;
 import com.lcz.lczed_mvpbase.utils.OnMultiClickListener;
 import com.lcz.lczed_mvpbase.utils.StatusUtils;
@@ -62,7 +63,6 @@ public abstract class BaseActivity<P extends IBasePresenter> extends BasePermiss
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         ActivityCollector.addActivity(this);
 
         //设置屏幕是否可旋转

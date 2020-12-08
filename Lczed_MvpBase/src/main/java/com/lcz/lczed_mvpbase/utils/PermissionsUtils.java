@@ -60,9 +60,12 @@ public class PermissionsUtils {
                     }
                 });
         return isok;
-    } //获取单个权限
+    }
 
-    protected Boolean GetPermissions(Fragment activity, String permission) {
+    Boolean isPermissionsok = false;
+    //获取单个权限
+    protected Boolean GetPermissions(Fragment activity, String[] permission) {
+
         PermissionX.init(activity)//Fragment传this，Activity传Activity对象。
                 //权限列表 可手动添加
                 .permissions(permission)
@@ -86,11 +89,11 @@ public class PermissionsUtils {
                     public void onResult(boolean allGranted, List<String> grantedList, List<String> deniedList) {
                         if (allGranted) {
                             LogUtils.d("权限授权成功");
-                            isok = true;
+                            isPermissionsok = true;
                         } else {
                             ToastUtil.showShort("权限不通过!");
                             //权限不通过，无法使用
-                            isok = false;
+                            isPermissionsok = false;
                         }
                     }
                 });

@@ -34,7 +34,6 @@ class MainActivity : BaseActivity<MainP>(), MainV {
     override fun initData() {
 //        mainP.getData()
         mainP.setView(this)
-        LogUtils.d("1")
     }
 
     override fun initView() {

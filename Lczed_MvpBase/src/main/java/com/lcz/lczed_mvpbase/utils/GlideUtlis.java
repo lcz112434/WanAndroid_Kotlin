@@ -47,6 +47,10 @@ public class GlideUtlis {
     //3.设置加载中以及加载失败图片
     public static void loadImageViewLoding(Context mContext, String path, ImageView mImageView, int lodingImage, int errorImageView) {
         Glide.with(mContext).load(path).placeholder(lodingImage).error(errorImageView).into(mImageView);
+    } //3.设置加载中以及加载失败图片
+
+    public static void loadImageViewLoding(Context mContext, String path, ImageView mImageView, int errorImageView) {
+        Glide.with(mContext).load(path).error(errorImageView).into(mImageView);
     }
 
     //4.设置加载中以及加载失败图片并且指定大小

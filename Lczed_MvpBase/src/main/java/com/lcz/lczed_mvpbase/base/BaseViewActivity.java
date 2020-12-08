@@ -123,6 +123,7 @@ public abstract class BaseViewActivity<P extends IBasePresenter, T extends ViewB
             e.printStackTrace();
         }
 
+
         initView();
         presenter = createPresenter();
         presenter.attachView(this);
